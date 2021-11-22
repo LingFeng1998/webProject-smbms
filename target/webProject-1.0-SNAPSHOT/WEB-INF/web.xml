@@ -1,0 +1,70 @@
+<!DOCTYPE web-app PUBLIC
+                "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+                "http://java.sun.com/dtd/web-app_2_3.dtd" >
+
+<web-app>
+<display-name>Archetype Created Web Application</display-name>
+
+    <!--字符编码过滤器-->
+<!--    <filter>-->
+<!--        <filter-name>CharacterEncodingFilter</filter-name>-->
+<!--        <filter-class>com.java.filter.CharacterEncodingFilter</filter-class>-->
+<!--    </filter>-->
+<!--    <filter-mapping>-->
+<!--        <filter-name>CharacterEncodingFilter</filter-name>-->
+<!--        <url-pattern>/*</url-pattern>-->
+<!--    </filter-mapping>-->
+
+    <filter>
+        <filter-name>LoginFilter</filter-name>
+        <filter-class>com.java.filter.LoginFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>LoginFilter</filter-name>
+        <url-pattern>/jsp/*</url-pattern>
+    </filter-mapping>
+
+    <!--设置欢迎页面-->
+    <welcome-file-list>
+        <welcome-file>login.jsp</welcome-file>
+    </welcome-file-list>
+
+    <servlet>
+        <servlet-name>UserLoginServlet</servlet-name>
+        <servlet-class>com.java.servlet.UserLoginServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UserLoginServlet</servlet-name>
+        <url-pattern>/login.do</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>LogoutServlet</servlet-name>
+        <servlet-class>com.java.servlet.LogoutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/logout.do</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>UpdatePwdServlet</servlet-name>
+        <servlet-class>com.java.servlet.UserUpdatePwdServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UpdatePwdServlet</servlet-name>
+        <url-pattern>/jsp/user.do</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>CheckPwd</servlet-name>
+        <servlet-class>com.java.servlet.checkOldPwd</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CheckPwd</servlet-name>
+        <url-pattern>/jsp/check</url-pattern>
+    </servlet-mapping>
+    <session-config>
+        <session-timeout>30</session-timeout>
+    </session-config>
+    
+</web-app>
