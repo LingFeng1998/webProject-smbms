@@ -10,6 +10,8 @@ import org.junit.Test;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author lingfeng
@@ -53,10 +55,40 @@ public class UserServiceImpl implements UserService {
         return falg;
     }
 
-//    @Test
-//    public void test(){
-//        UserServiceImpl userService = new UserServiceImpl();
-//        User user = userService.getLoginUser("wen", "qwqw");
-//        System.out.println(user.getUserPassword());
-//    }
+    public int getUserCount(String userName, String roleId) {
+        Connection connection = null;
+        int count = 0;
+        try {
+            connection = BaseDao.getConnection();
+            count = userDao.getUserCount(userName, roleId,connection);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }finally {
+            BaseDao.closeResource(connection,null,null);
+        }
+        return count;
+    }
+
+    public List<User> getUserList(String userName, String roleId, int currentPageNo, int pageSize) {
+        Connection connection = null;
+        List<User> users = new ArrayList<User>();
+        try {
+            connection = BaseDao.getConnection();
+            users = userDao.getUserList(userName,roleId,currentPageNo,pageSize,connection);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }finally {
+            BaseDao.closeResource(connection,null,null);
+        }
+        return users;
+    }
+
+    @Test
+    public void test(){
+        UserServiceImpl userService = new UserServiceImpl();
+        List<User> users= userService.getUserList("","",1,5);
+        for (User user : users) {
+            System.out.println(user.toString());
+        }
+    }
 }

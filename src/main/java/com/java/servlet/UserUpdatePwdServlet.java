@@ -1,9 +1,12 @@
 package com.java.servlet;
 
 import com.alibaba.fastjson.JSONArray;
+import com.java.pojo.Role;
 import com.java.pojo.User;
+import com.java.service.impl.RoleServiceImpl;
 import com.java.service.impl.UserServiceImpl;
 import com.java.util.Constants;
+import com.java.util.PageSupport;
 import com.mysql.jdbc.StringUtils;
 
 import javax.servlet.ServletException;
@@ -13,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author lingfeng
@@ -25,6 +29,8 @@ public class UserUpdatePwdServlet extends HttpServlet {
             updatePwd(req,resp);
         }else if("pwdmodify".equals(req.getParameter("method"))){
             pwdModify(req,resp);
+        }else if("query".equals(req.getParameter("method"))){
+            query(req,resp);
         }
     }
 
@@ -75,6 +81,50 @@ public class UserUpdatePwdServlet extends HttpServlet {
         }catch (IOException e){
             e.printStackTrace();
         }
+
+    }
+
+    public void query(HttpServletRequest req,HttpServletResponse resp) throws ServletException, IOException{
+        String userName = req.getParameter("queryname");
+        String roleId = req.getParameter("queryUserRole");
+        String pageIndex = req.getParameter("pageIndex");
+        int pageSize = 5;//默认页面大小为5
+        int currentPageNo = 1;//默认查找第一页
+        if(pageIndex!=null){
+            currentPageNo = Integer.parseInt(pageIndex);
+        }
+        if("0".equals(roleId)){
+            roleId = "";
+        }
+
+        UserServiceImpl userService = new UserServiceImpl();
+        RoleServiceImpl roleService = new RoleServiceImpl();
+
+        int totalCount = userService.getUserCount(userName, roleId);
+        PageSupport pageSupport = new PageSupport();
+        pageSupport.setCurrentPageNo(currentPageNo);
+        pageSupport.setPageSize(pageSize);
+        pageSupport.setTotalCount(totalCount);
+        int totalPageCount = pageSupport.getTotalPageCount();//总页数
+
+        if(currentPageNo<1){ //查询页数<1则查询第一页
+            currentPageNo = 1;
+        }else if(currentPageNo > totalPageCount){ //查询页数大于最大页数
+            currentPageNo = totalPageCount;
+        }
+
+        List<User> userList = userService.getUserList(userName, roleId, currentPageNo, pageSize);
+        List<Role> roleList = roleService.getRoleList();
+
+        req.setAttribute("userList",userList);
+        req.setAttribute("roleList",roleList);
+        req.setAttribute("totalCount",totalCount);
+        req.setAttribute("currentPageNo",currentPageNo);
+        req.setAttribute("totalPageCount",totalPageCount);
+        req.setAttribute("queryUserName",userName);
+        req.setAttribute("queryUserRole",roleId);
+
+        req.getRequestDispatcher("userlist.jsp").forward(req,resp);
 
     }
 }

@@ -4,6 +4,7 @@ import com.java.pojo.User;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 
 /**
  * @author lingfeng
@@ -13,4 +14,8 @@ public interface UserDao {
     public User getLoginUser(String userCode,String userPassword, Connection connection) throws SQLException;
 
     public int updatePwd(int id,String pwd,Connection connection)throws SQLException;
+
+    public int getUserCount(String userName,String roleId,Connection connection) throws SQLException;
+
+    public List<User> getUserList(String userName,String roleId,int currentPageNo, int pageSize,Connection connection) throws SQLException;
 }
