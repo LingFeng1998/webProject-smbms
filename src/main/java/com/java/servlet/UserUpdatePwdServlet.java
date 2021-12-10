@@ -3,6 +3,7 @@ package com.java.servlet;
 import com.alibaba.fastjson.JSONArray;
 import com.java.pojo.Role;
 import com.java.pojo.User;
+import com.java.service.UserService;
 import com.java.service.impl.RoleServiceImpl;
 import com.java.service.impl.UserServiceImpl;
 import com.java.util.Constants;
@@ -15,6 +16,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -31,8 +35,17 @@ public class UserUpdatePwdServlet extends HttpServlet {
             pwdModify(req,resp);
         }else if("query".equals(req.getParameter("method"))){
             query(req,resp);
+        }else if("ucexist".equals(req.getParameter("method"))){
+            ucexist(req,resp);
+        }else if("getrolelist".equals(req.getParameter("method"))){
+            getrolelist(req,resp);
+        }else if("add".equals(req.getParameter("method"))){
+            add(req,resp);
+        }else if("deluser".equals(req.getParameter("method"))){
+            deluser(req,resp);
         }
     }
+
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -127,4 +140,97 @@ public class UserUpdatePwdServlet extends HttpServlet {
         req.getRequestDispatcher("userlist.jsp").forward(req,resp);
 
     }
+
+    private void ucexist(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+        HashMap<String, String> resultMap = new HashMap<String, String>();
+        String userCode = req.getParameter("userCode");
+        if(StringUtils.isNullOrEmpty(userCode)){
+            resultMap.put("userCode","null");
+        }else{
+            UserServiceImpl userService = new UserServiceImpl();
+            User user = userService.selectUserByCode(userCode);
+            if(user == null){
+                resultMap.put("userCode","notexist");
+            }else{
+                resultMap.put("userCode","exist");
+            }
+        }
+        try {
+            resp.setContentType("application/json");
+            PrintWriter writer = resp.getWriter();
+            writer.write(JSONArray.toJSONString(resultMap));
+            writer.flush();
+            writer.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void getrolelist(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        RoleServiceImpl roleService = new RoleServiceImpl();
+        List<Role> roleList = roleService.getRoleList();
+        try {
+           // resp.setContentType("application/json");
+            resp.setContentType("text/html;charset=UTF-8");
+            PrintWriter writer = resp.getWriter();
+            writer.write(JSONArray.toJSONString(roleList));
+            writer.flush();
+            writer.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void add(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+        String userCode = req.getParameter("userCode");
+        String userName = req.getParameter("userName");
+        String userPassword = req.getParameter("userPassword");
+        String gender = req.getParameter("gender");
+        String birthday = req.getParameter("birthday");
+        String phone = req.getParameter("phone");
+        String address = req.getParameter("address");
+        String userRole = req.getParameter("userRole");
+
+        User user = new User();
+        user.setUserCode(userCode);
+        user.setUserName(userName);
+        user.setUserPassword(userPassword);
+        user.setAddress(address);
+        try {
+            user.setBirthday(new SimpleDateFormat("yyyy-MM-dd").parse(birthday));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        user.setGender(Integer.valueOf(gender));
+        user.setPhone(phone);
+        user.setUserRole(Integer.valueOf(userRole));
+        user.setCreationDate(new Date());
+        user.setCreatedBy(((User) req.getSession().getAttribute(Constants.USER_SESSION)).getId());
+        UserService userService = new UserServiceImpl();
+        if(userService.addUser(user)){
+            resp.sendRedirect(req.getContextPath() + "/jsp/user.do?method=query");
+        }else{
+            req.getRequestDispatcher("useradd.jsp").forward(req, resp);
+        }
+    }
+
+    private void deluser(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException{
+        String uid = req.getParameter("uid");
+        int delId = 0;
+        delId = Integer.parseInt(uid);
+        HashMap<String, String> resultMap = new HashMap<String, String>();
+        UserService userService = new UserServiceImpl();
+        if(userService.delUser(delId)){
+            resultMap.put("delResult","true");
+        }else{
+            resultMap.put("delResult","false");
+        }
+        resp.setContentType("application/json");
+        PrintWriter writer = resp.getWriter();
+        writer.write(JSONArray.toJSONString(resultMap));
+        writer.flush();
+        writer.close();
+    }
+
+
 }

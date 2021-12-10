@@ -18,4 +18,10 @@ public interface UserDao {
     public int getUserCount(String userName,String roleId,Connection connection) throws SQLException;
 
     public List<User> getUserList(String userName,String roleId,int currentPageNo, int pageSize,Connection connection) throws SQLException;
+
+    public User selectUserByCode(String userCode, Connection connection) throws SQLException;
+
+    public int addUser(User user, Connection connection) throws SQLException;
+
+    public int delUser(int id,Connection connection) throws SQLException;
 }

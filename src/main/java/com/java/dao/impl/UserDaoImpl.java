@@ -131,4 +131,61 @@ public class UserDaoImpl implements UserDao {
         }
         return users;
     }
+
+    public User selectUserByCode(String userCode, Connection connection) throws SQLException {
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        User user = null;
+        if(connection != null){
+            String sql = "select * from smbms_user where userCode=?";
+            Object[] params = {userCode};
+            resultSet = BaseDao.execute(connection, sql, params, resultSet,preparedStatement);
+            if (resultSet.next()) {
+                user = new User();
+                user.setId(resultSet.getInt("id"));
+                user.setUserCode(resultSet.getString("userCode"));
+                user.setUserName(resultSet.getString("userName"));
+                user.setUserPassword(resultSet.getString("userPassword"));
+                user.setGender(resultSet.getInt("gender"));
+                user.setBirthday(resultSet.getDate("birthday"));
+                user.setPhone(resultSet.getString("phone"));
+                user.setAddress(resultSet.getString("address"));
+                user.setUserRole(resultSet.getInt("userRole"));
+                user.setCreatedBy(resultSet.getInt("createdBy"));
+                user.setCreationDate(resultSet.getTimestamp("creationDate"));
+                user.setModifyBy(resultSet.getInt("modifyBy"));
+                user.setModifyDate(resultSet.getTimestamp("modifyDate"));
+            }
+            BaseDao.closeResource(null,preparedStatement,resultSet);
+        }
+        return user;
+    }
+
+    public int addUser(User user, Connection connection) throws SQLException{
+        PreparedStatement preparedStatement = null;
+        int i = 0;
+        if(connection != null){
+            String sql = "insert into smbms_user (userCode,userName,userPassword," +
+                    "userRole,gender,birthday,phone,address,creationDate,createdBy) " +
+                    "values(?,?,?,?,?,?,?,?,?,?)";
+            Object[] params = {user.getUserCode(), user.getUserName(), user.getUserPassword(),
+                    user.getUserRole(), user.getGender(), user.getBirthday(),
+                    user.getPhone(), user.getAddress(), user.getCreationDate(), user.getCreatedBy()};
+            i = BaseDao.execute(connection,preparedStatement,sql,params);
+            BaseDao.closeResource(null,preparedStatement,null);
+        }
+        return  i;
+    }
+
+    public int delUser(int id,Connection connection) throws SQLException{
+        PreparedStatement preparedStatement = null;
+        int i = 0;
+        if(connection != null){
+            String sql = "delete from smbms_user where id=? ";
+            Object[] params = {id};
+            i = BaseDao.execute(connection,preparedStatement,sql,params);
+            BaseDao.closeResource(null,preparedStatement,null);
+        }
+        return i;
+    }
 }
