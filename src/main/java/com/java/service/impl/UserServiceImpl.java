@@ -131,6 +131,37 @@ public class UserServiceImpl implements UserService {
         return falg;
     }
 
+    public User getUserById(String id) {
+        Connection connection = null;
+        User user = null;
+        try {
+            connection = BaseDao.getConnection();
+            user = userDao.getUserById(id,connection);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }finally {
+            BaseDao.closeResource(connection,null,null);
+        }
+        return user;
+    }
+
+    public boolean modify(User user) {
+        Connection connection = null;
+        boolean falg = false;
+        try {
+            connection = BaseDao.getConnection();
+            int result = userDao.modify(user,connection);
+            if(result > 0){
+                falg = true;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }finally {
+            BaseDao.closeResource(connection,null,null);
+        }
+        return falg;
+    }
+
     @Test
     public void test(){
         UserServiceImpl userService = new UserServiceImpl();

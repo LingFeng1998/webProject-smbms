@@ -188,4 +188,49 @@ public class UserDaoImpl implements UserDao {
         }
         return i;
     }
+
+    public User getUserById(String id,Connection connection) throws SQLException{
+        PreparedStatement preparedStatement = null;
+        ResultSet rs = null;
+        User user = null;
+        if(connection != null){
+            String sql = "select u.*,r.roleName as userRoleName from smbms_user u,smbms_role r where u.id=? and u.userRole = r.id";
+            Object[] params = {id};
+            rs = BaseDao.execute(connection, sql, params, rs,preparedStatement);
+            if (rs.next()) {
+                user = new User();
+                user.setId(rs.getInt("id"));
+                user.setUserCode(rs.getString("userCode"));
+                user.setUserName(rs.getString("userName"));
+                user.setUserPassword(rs.getString("userPassword"));
+                user.setGender(rs.getInt("gender"));
+                user.setBirthday(rs.getDate("birthday"));
+                user.setPhone(rs.getString("phone"));
+                user.setAddress(rs.getString("address"));
+                user.setUserRole(rs.getInt("userRole"));
+                user.setCreatedBy(rs.getInt("createdBy"));
+                user.setCreationDate(rs.getTimestamp("creationDate"));
+                user.setModifyBy(rs.getInt("modifyBy"));
+                user.setModifyDate(rs.getTimestamp("modifyDate"));
+                user.setUserRoleName(rs.getString("userRoleName"));
+            }
+            BaseDao.closeResource(null,preparedStatement,rs);
+        }
+        return user;
+    }
+
+    public int modify(User user, Connection connection) throws SQLException{
+        PreparedStatement preparedStatement = null;
+        int i = 0;
+        if(connection != null){
+            String sql = "update smbms_user set userName=?," +
+                    "gender=?,birthday=?,phone=?,address=?,userRole=?,modifyBy=?,modifyDate=? where id = ? ";
+            Object[] params = {user.getUserName(), user.getGender(), user.getBirthday(),
+                    user.getPhone(), user.getAddress(), user.getUserRole(), user.getModifyBy(),
+                    user.getModifyDate(), user.getId()};
+            i = BaseDao.execute(connection, preparedStatement, sql, params);
+            BaseDao.closeResource(null, preparedStatement, null);
+        }
+        return i;
+    }
 }

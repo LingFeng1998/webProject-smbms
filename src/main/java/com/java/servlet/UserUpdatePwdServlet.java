@@ -9,6 +9,7 @@ import com.java.service.impl.UserServiceImpl;
 import com.java.util.Constants;
 import com.java.util.PageSupport;
 import com.mysql.jdbc.StringUtils;
+import com.sun.xml.internal.bind.v2.model.core.ID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -43,9 +44,14 @@ public class UserUpdatePwdServlet extends HttpServlet {
             add(req,resp);
         }else if("deluser".equals(req.getParameter("method"))){
             deluser(req,resp);
+        }else if("view".equals(req.getParameter("method"))){
+            view(req,resp);
+        }else if("modify".equals(req.getParameter("method"))){
+            modify(req,resp);
+        }else if("modifyexe".equals(req.getParameter("method"))){
+            modifyexe(req,resp);
         }
     }
-
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -232,5 +238,52 @@ public class UserUpdatePwdServlet extends HttpServlet {
         writer.close();
     }
 
+    private void view(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String uid = req.getParameter("uid");
+        System.out.println(uid);
+        UserService userService = new UserServiceImpl();
+        User user =userService.getUserById(uid);
+        req.setAttribute("user",user);
+        req.getRequestDispatcher("userview.jsp").forward(req,resp);
+    }
 
+    private void modify(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String uid = req.getParameter("uid");
+        System.out.println(uid);
+        UserService userService = new UserServiceImpl();
+        User user =userService.getUserById(uid);
+        req.setAttribute("user",user);
+        req.getRequestDispatcher("usermodify.jsp").forward(req,resp);
+    }
+
+    private void modifyexe(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String id = req.getParameter("uid");
+        String userName = req.getParameter("userName");
+        String gender = req.getParameter("gender");
+        String birthday = req.getParameter("birthday");
+        String phone = req.getParameter("phone");
+        String address = req.getParameter("address");
+        String userRole = req.getParameter("userRole");
+
+        User user = new User();
+        user.setId(Integer.valueOf(id));
+        user.setUserName(userName);
+        user.setGender(Integer.valueOf(gender));
+        try {
+            user.setBirthday(new SimpleDateFormat("yyyy-MM-dd").parse(birthday));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        user.setPhone(phone);
+        user.setAddress(address);
+        user.setUserRole(Integer.valueOf(userRole));
+        user.setModifyBy(((User) req.getSession().getAttribute(Constants.USER_SESSION)).getId());
+        user.setModifyDate(new Date());
+        UserService userService = new UserServiceImpl();
+        if (userService.modify(user)) {
+            resp.sendRedirect(req.getContextPath() + "/jsp/user.do?method=query");
+        } else {
+            req.getRequestDispatcher("usermodify.jsp").forward(req, resp);
+        }
+    }
 }

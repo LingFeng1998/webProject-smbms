@@ -23,4 +23,8 @@ public interface UserService {
     public boolean addUser(User user);
 
     public boolean delUser(int id);
+
+    public User getUserById(String id);
+
+    boolean modify(User user);
 }
